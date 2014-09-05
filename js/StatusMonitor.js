@@ -3,6 +3,7 @@ var StatusMonitor = new Class({
 	aMonitorData: [],
 	oCounterData: {},
 	aGlobalLog: [],
+	oCountries: {},
 	oLogTypes: {
 		'1': 'down',
 		'2': 'up',
@@ -13,11 +14,13 @@ var StatusMonitor = new Class({
 	initialize: function () {
 		jsonUptimeRobotApi = this.onWebserviceResponseHandler.bind(this);
 		this.onNavClickReference = this.onNavClickHandler.bind(this);
+		this.onSelectChangeReference = this.onSelectChangeHandler.bind(this);
 		this.addEventHandler();
 		this.loadApiData();
 	},
 	addEventHandler: function () {
 		document.body.addEvent('click:relay(nav ul li)', this.onNavClickReference);
+		document.body.addEvent('change:relay(#country-selector select)', this.onSelectChangeReference);
 	},
 	loadApiData: function () {
 		this.oRequest = new Request.JSONP({
@@ -41,6 +44,28 @@ var StatusMonitor = new Class({
 			oListItem.addClass('active');
 			$$('section.monitor-page').removeClass('active');
 			$$('section#' + oListItem.get('data-tab') + '-watch').addClass('active');
+		}
+	},
+	onSelectChangeHandler: function(oEvent)
+	{
+		var i,
+			aOptions = document.id('country-selector').getElements('option');
+
+		for(i = aOptions.length; i--;)
+		{
+			if(aOptions[i].selected)
+			{
+				if(aOptions[i].value === 'reset')
+				{
+					$$('.monitor').removeClass('hidden');
+					break;
+				}
+				$$('.monitor[data-country=' + aOptions[i].value + ']').removeClass('hidden');
+			}
+			else
+			{
+				$$('.monitor[data-country=' + aOptions[i].value + ']').addClass('hidden');
+			}
 		}
 	},
 	sortLogArray: function(oItemA, oItemB)
@@ -67,10 +92,27 @@ var StatusMonitor = new Class({
 		}
 
 		this.updateGlobalLog();
+		this.updateCountryFilter();
 
 		this.iLastUpdate = new Date();
 		$$('.time').set('text', this.iLastUpdate.getDay() + '.' + this.iLastUpdate.getMonth() + '.' + this.iLastUpdate.getFullYear() + ' ' + this.iLastUpdate.getHours() + ':' + this.iLastUpdate.getMinutes() + ':' + this.iLastUpdate.getSeconds());
 		this.loadApiData.delay(60000, this);
+	},
+	/**
+	 * [updateCountryFilter description]
+	 * @return {[type]} [description]
+	 */
+	updateCountryFilter: function()
+	{
+		var sId;
+		for(sId in this.oCountries)
+		{
+			if(document.id('country-selector').getElements('option.lang-' + sId).length > 0)
+			{
+				continue;
+			}
+			document.id('country-selector').getElement('select').adopt(new Element('option', {'class': 'lang-' + sId, 'value': sId, 'text': sId}));
+		}	
 	},
 	/**
 	 * Creates a list of all events off all monitors, grouped by the monitors
@@ -105,7 +147,7 @@ var StatusMonitor = new Class({
 				new Element('tr', {'class': (typeof oLastLogs[sId].up === 'undefined' ? 'down' : 'up')}).adopt([
 					new Element('td', {'text': sId}),
 					new Element('td', {'text': oLastLogs[sId].down || '-'}),
-					new Element('td', {'text': oLastLogs[sId].up || '-'}),
+					new Element('td', {'text': oLastLogs[sId].up || '-'})
 				])
 			);
 		}
@@ -127,6 +169,11 @@ var StatusMonitor = new Class({
 		if (document.id(sContainerId) === null) {
 			return;
 		}
+		if(typeof this.oCountries[sCountry] === 'undefined')
+		{
+			this.oCountries[sCountry] = 0;
+		}
+		this.oCountries[sCountry] += 1;
 		if (typeof this.oCounterData[sGameId] === 'undefined' || this.oCounterData[sGameId] === null) {
 			this.oCounterData[sGameId] = 0;
 		}
