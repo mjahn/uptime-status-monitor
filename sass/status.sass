@@ -1,0 +1,298 @@
+@import "compass"
+@import "compass/css3"
+@import "compass/utilities"
+
+$use-mozilla-ellipsis-binding: true
+@import "compass/typography/text/ellipsis"
+
+body
+	background: #fff
+	
+header
+	h1
+		text-indent: -1000em
+		background: url('../img/playzo.png') no-repeat top center
+		height: 90px
+		margin: 0
+		padding: 0
+	h2
+		text-align: center
+		color: #555
+		font-size: 14px
+		font-weight: normal
+		margin-top: 0
+
+nav
+	display: block
+	ul
+		display: block
+		padding: 0
+		margin: 0
+		width: 100%
+		list-style: none
+		text-align: center
+		position: relative
+		-webkit-user-select: none
+		-moz-user-select: none
+		-ms-user-select: none
+		-o-user-select: none
+		user-select: none
+		-ms-touch-action: none
+		img
+			position: absolute
+			left: 5px
+			top: 14px
+			z-index: 100
+			display: none
+		li
+			+inline-block
+			text-align: center
+			padding: .5em 1em
+			border: 1px solid #000
+			+border-radius(5px 5px 0 0)
+			position: relative
+			&:hover
+				background: #000
+				color: #fff
+				cursor: pointer
+			&.active
+				border-bottom: 1px solid #fff
+				position: relative
+				z-index: 5
+				background: #fff
+				color: #000
+				font-weight: bold
+				&:hover
+					background: #fff
+					cursor: default
+			&.error
+				color: red
+				font-weight: bold
+			.amount
+				color: red
+				font-weight: bold
+				margin-left: 5px
+				&:empty
+					display: none
+				&:before
+					content: '('
+				&:after
+					content: ')'
+
+main
+	display: block
+	position: relative
+	top: -1px
+
+section.monitor-page
+	position: absolute
+	border: 1px solid #000
+	background: #fff
+	top: 0
+	left: -200%
+	right: 150%
+	z-index: 1
+	padding: 1%
+	&.active
+		right: 0
+		left: 0
+		z-index: 2
+	.monitors
+		overflow: hidden
+		list-style: none
+		margin: 0
+		padding: 0
+	.monitor
+		margin: 5px
+		padding: 5px 8px
+		display: block
+		width: 400px
+		max-width: 100%
+		float: left
+		background: rgba(#000, 0.1)
+		border: 2px solid #000
+		&.up
+			border-color: green
+		&.down
+			border-color: red
+		&.seems-down
+			border: 5px dotted orange
+			padding: 2px 5px
+		&.waiting
+			border-color: black
+		&.paused
+			padding: 7px 10px
+			border-color: gray
+			border: 0
+		&.down
+			border: 5px dashed red
+			padding: 2px 5px
+		h3
+			text-align: center
+			margin: 0.5em 0 1em 0
+			font-size: 18px
+			a
+				text-decoration: none
+				color: black
+		h4
+			margin: .5em 0
+	.status
+		font-weight: bold
+		&:before
+			content: ' ('
+		&:after
+			content: ') '
+		&.up
+			color: green
+		&.down
+			color: red
+		&.seems-down
+			color: orange
+		&.waiting
+			color: black
+		&.paused
+			color: gray
+		&.down
+			color: red
+
+	.loglist
+		overflow: auto
+		height: 5em
+		margin: 0 0 1em 0
+		background: rgba(#fff, 0.8)	
+	.logs
+		list-style: none
+		margin: 0
+		padding: 0
+		li
+			padding: 3px 5px
+			&:hover
+				background: #fff
+			&.up
+				color: green
+			&.down
+				color: red
+			&.waiting
+				color: black
+			&.paused
+				color: gray
+		.date
+			margin-right: .5em
+table.logs
+	border-collapse: collapse
+	border: 0
+	font-size: 14px
+	tr.down
+		td:first-child
+			background: red
+			color: white
+	td, th
+		padding: 3px 5px
+	tr
+		border-bottom: 1px dashed #888
+
+.uptime:after
+	content: '%'
+.response-time
+	width: 25em !important
+.uptime
+	padding: 5px 10px
+
+
+@media only screen and (max-width: 880px)
+	nav ul
+		width: 100%
+		margin: 0 auto
+		text-align: left
+		border: 1px solid black
+		height: 40px
+		img
+			display: block
+		li
+			display: block
+			z-index: 1
+			margin-bottom: -34px
+			-webkit-transition: 0.5s
+			-moz-transition: 0.5s
+			-o-transition: 0.5s
+			transition: 0.5s
+			border: 0
+			+border-radius(0)
+			float: none
+			+opacity(0)
+			&:last-child
+				margin-bottom: 0
+			&.active 
+				display: block
+				z-index: 10
+				+opacity(1)
+	nav:hover li
+		margin-bottom: 0
+		z-index: 10
+		background: #fff
+		+opacity(1)
+
+@media only screen and (max-device-width: 1024px) and (orientation: portrait)
+	nav ul
+		width: 100%
+		margin: 0 auto
+		text-align: left
+		border: 1px solid black
+		height: 40px
+		img
+			display: block
+		li
+			display: block
+			z-index: 1
+			margin-bottom: -34px
+			-webkit-transition: 0.5s
+			-moz-transition: 0.5s
+			-o-transition: 0.5s
+			transition: 0.5s
+			+border-radius(0)
+			float: none
+			+opacity(0)
+			&:last-child
+				margin-bottom: 0
+			&.active 
+				display: block
+				z-index: 10
+				+opacity(1)
+	nav:hover li
+		margin-bottom: 0
+		z-index: 10
+		background: #fff
+		+opacity(1)
+
+@media only screen and (max-device-width: 480px)
+	nav ul
+		width: 100%
+		margin: 0 auto
+		text-align: left
+		border: 1px solid black
+		height: 40px
+		img
+			display: block
+		li
+			display: block
+			z-index: 1
+			margin-bottom: -34px
+			-webkit-transition: 0.5s
+			-moz-transition: 0.5s
+			-o-transition: 0.5s
+			transition: 0.5s
+			border: 0
+			+border-radius(0)
+			float: none
+			+opacity(0)
+			&:last-child
+				margin-bottom: 0
+			&.active 
+				display: block
+				z-index: 10
+				+opacity(1)
+	nav:hover li
+		margin-bottom: 0
+		z-index: 10
+		background: #fff
+		+opacity(1)
