@@ -68,6 +68,8 @@ nav
 			&.error
 				color: red
 				font-weight: bold
+			&.hidden
+				display: none
 			.amount
 				color: red
 				font-weight: bold
@@ -79,15 +81,6 @@ nav
 				&:after
 					content: ')'
 
-main
-	display: block
-	position: relative
-	top: -1px
-#country-selector
-	position: absolute
-	z-index: 15
-	top: 2em
-	right: 2em
 section.monitor-page
 	position: absolute
 	border: 1px solid #000
@@ -203,6 +196,31 @@ table.logs
 	width: 25em !important
 .uptime
 	padding: 5px 10px
+
+main
+	display: block
+	position: relative
+	top: -1px
+	&.all
+		border: 1px solid #000
+		background: #fff
+		section.monitor-page
+			position: static
+			border: 0
+			+inline-block
+			margin: 0
+			padding: 0
+			h2
+				display: none
+		#dashboard-watch
+			display: none
+
+
+#country-selector
+	position: absolute
+	z-index: 15
+	top: 2em
+	right: 2em
 
 
 @media only screen and (max-width: 880px)

@@ -1,5 +1,6 @@
 var StatusMonitor = new Class({
 	sApiKey: 'u12135-e184c7637611ba8f22319d69',
+	iDelay: 150,
 	aMonitorData: [],
 	oCounterData: {},
 	aGlobalLog: [],
@@ -40,11 +41,32 @@ var StatusMonitor = new Class({
 			oListItem = oListItem.getParent('li');
 		}
 		if (oListItem.get('data-tab') !== '') {
-			$$('nav ul li').removeClass('active');
-			oListItem.addClass('active');
-			$$('section.monitor-page').removeClass('active');
-			$$('section#' + oListItem.get('data-tab') + '-watch').addClass('active');
+			if(oListItem.get('data-tab') !==  'all')
+			{
+				$$('nav ul li').removeClass('active');
+				oListItem.addClass('active');
+				$$('section.monitor-page').removeClass('active');
+				$$('section#' + oListItem.get('data-tab') + '-watch').addClass('active');
+				$$('main').removeClass('all');
+			}
+			else
+			{
+				$$('nav ul li').removeClass('active');
+				oListItem.addClass('active');
+				$$('section.monitor-page').addClass('active');
+				$$('section#dashboard-watch').removeClass('active');
+				$$('main').addClass('all');
+			}
 		}
+	},
+	showTab: function(iTabId)
+	{
+		$$('nav ul li').removeClass('active');
+		$$('nav ul li')[iTabId].addClass('active');
+		$$('section.monitor-page').removeClass('active');
+		$$('section#' + $$('nav ul li')[iTabId].get('data-tab') + '-watch').addClass('active');
+		$$('main').removeClass('all');
+
 	},
 	onSelectChangeHandler: function(oEvent)
 	{
@@ -58,8 +80,11 @@ var StatusMonitor = new Class({
 				if(aOptions[i].value === 'reset')
 				{
 					$$('.monitor').removeClass('hidden');
+					$$('[data-tab="all"]').addClass('hidden');
+					this.showTab(0);
 					break;
 				}
+				$$('[data-tab="all"]').removeClass('hidden');
 				$$('.monitor[data-country=' + aOptions[i].value + ']').removeClass('hidden');
 			}
 			else
@@ -96,7 +121,7 @@ var StatusMonitor = new Class({
 
 		this.iLastUpdate = new Date();
 		$$('.time').set('text', this.iLastUpdate.getDay() + '.' + this.iLastUpdate.getMonth() + '.' + this.iLastUpdate.getFullYear() + ' ' + this.iLastUpdate.getHours() + ':' + this.iLastUpdate.getMinutes() + ':' + this.iLastUpdate.getSeconds());
-		this.loadApiData.delay(60000, this);
+		this.loadApiData.delay(this.iDelay * 1000, this);
 	},
 	/**
 	 * [updateCountryFilter description]
@@ -151,7 +176,7 @@ var StatusMonitor = new Class({
 				])
 			);
 		}
-		document.id('all-watch').getElement('.logs tbody').empty().adopt(aElements);
+		document.id('dashboard-watch').getElement('.logs tbody').empty().adopt(aElements);
 		oLastLogs = null;
 
 
