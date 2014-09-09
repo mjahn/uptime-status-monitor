@@ -1,84 +1,41 @@
 <html>
 	<head>
-		<title>Playzo Spiele-Status</title>
+		<title data-lang="dic-title"></title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<link rel="stylesheet" href="css/status.css" />
 		<link rel="stylesheet" href="css/chartist.min.css"/>
 	</head>
 	<body>
 		<header>
-			<h1>Playzo Status Seite</h1>
-			<h2>Letzte Aktualisierung um <span class="time"></span></h2>
+			<h1 data-lang="dic-header"></h1>
+			<h2 class="last-changed"></h2>
 		</header>
 		<nav>
 			<ul>
-				<li data-tab="dashboard" class="active">Dashboard</li>
-				<li data-tab="all" class="hidden">All</li>
-				<li data-tab="do">Desert Operations<span class="amount do-amount"></span></li>
-				<li data-tab="wg">Wargame 1942<span class="amount wg-amount"></span></li>
-				<li data-tab="gow">Generals of War<span class="amount gow-amount"></span></li>
-				<li data-tab="rd">Romadoria<span class="amount rd-amount"></span></li>
-				<li data-tab="gro">Gronenland<span class="amount gro-amount"></span></li>
-				<li data-tab="ft">Farmtastic<span class="amount ft-amount"></span></li>
-				<li data-tab="looki">Looki<span class="amount looki-amount"></span></li>
-				<li data-tab="chat">Chat<span class="amount chat-amount"></span></li>
+				<li data-tab="dashboard" class="active"><span data-lang="dic-nav-label-dashboard"></span></li>
+				<li data-tab="all" class="hidden"><span data-lang="dic-nav-label-all"></span></li>
 			</ul>
 		</nav>
 		<main>
 			<div id="country-selector">
-				<label>
-					Filter by Country
-					<select>
-						<option value="reset">Show all</option>
-
-					</select>
-				</label>
+				<label for="country-selector-options" data-lang="dic-filter-label"></label>
+				<select id="country-selector-options">
+					<option value="reset">Show all</option>
+				</select>
 			</div>
 			<section class="monitor-page active" id="dashboard-watch">
-				<h2>Overview</h2>
+				<h2 data-lang="dic-dashboard-header"></h2>
 				<table class="logs">
 					<thead>
 						<tr>
-							<th>Monitor</th>
-							<th>Down</th>
-							<th>Up</th>
+							<th data-lang="dic-dashboard-table-header-monitor-name"></th>
+							<th data-lang="dic-dashboard-table-header-monitor-down"></th>
+							<th data-lang="dic-dashboard-table-header-monitor-up"></th>
 						</tr>
 					</thead>
 					<tbody>
 					</tbody>
 				</table>
-			</section>
-			<section class="monitor-page" id="do-watch">
-				<h2>Desert-Operations</h2>
-				<ul class="monitors"></ul>
-			</section>
-			<section class="monitor-page" id="wg-watch">
-				<h2>Wargame 1942</h2>
-				<ul class="monitors"></ul>
-			</section>
-			<section class="monitor-page" id="gow-watch">
-				<h2>Generals of War</h2>
-				<ul class="monitors"></ul>
-			</section>
-			<section class="monitor-page" id="gro-watch">
-				<h2>Gronenland</h2>
-				<ul class="monitors"></ul>
-			</section>
-			<section class="monitor-page" id="ft-watch">
-				<h2>Farmtastic</h2>
-				<ul class="monitors"></ul>
-			</section>
-			<section class="monitor-page" id="rd-watch">
-				<h2>Romadoria</h2>
-				<ul class="monitors"></ul>
-			</section>
-			<section class="monitor-page" id="looki-watch">
-				<h2>Looki</h2>
-				<ul class="monitors"></ul>
-			</section>
-			<section class="monitor-page" id="chat-watch">
-				<h2>Chat</h2>
-				<ul class="monitors"></ul>
 			</section>
 		</main>
 		<aside class="twitter"></aside>

@@ -1,6 +1,4 @@
 var StatusMonitor = new Class({
-	sApiKey: 'u12135-e184c7637611ba8f22319d69',
-	iDelay: 150,
 	aMonitorData: [],
 	oCounterData: {},
 	aGlobalLog: [],
@@ -16,19 +14,71 @@ var StatusMonitor = new Class({
 		jsonUptimeRobotApi = this.onWebserviceResponseHandler.bind(this);
 		this.onNavClickReference = this.onNavClickHandler.bind(this);
 		this.onSelectChangeReference = this.onSelectChangeHandler.bind(this);
+
+		this.onConfigLoadedReference = this.onConfigLoadedHandler.bind(this);
+		this.onDictionaryLoadedReference = this.onDictionaryLoadedHandler.bind(this);
+
 		this.addEventHandler();
-		this.loadApiData();
+		
+		this.loadConfig('config/config.js');
+
+//		this.loadApiData();
 	},
 	addEventHandler: function () {
 		document.body.addEvent('click:relay(nav ul li)', this.onNavClickReference);
 		document.body.addEvent('change:relay(#country-selector select)', this.onSelectChangeReference);
 	},
+	/**
+	 * loadConfig
+	 * @return {[type]} [description]
+	 */
+	loadConfig: function(sConfigFile)
+	{
+		this.oRequest = new Request.JSON({
+			url: sConfigFile,
+			method: 'get',
+			onSuccess: this.onConfigLoadedReference
+		}).send();
+
+	},
+
+	/**
+	 * load dictionary
+	 */
+	loadDictionary: function(sDictionaryFile)
+	{
+		this.oRequest = new Request.JSON({
+			url: sDictionaryFile,
+			method: 'get',
+			onSuccess: this.onDictionaryLoadedReference
+		}).send();
+	},
+
 	loadApiData: function () {
 		this.oRequest = new Request.JSONP({
-			url: 'http://api.uptimerobot.com/getMonitors?apiKey=' + this.sApiKey + '&logs=1&responseTimes=1&responseTimesAverage=180&customUptimeRatio=7-30-45&format=json',
+			url: 'http://api.uptimerobot.com/getMonitors?apiKey=' + this.oConfig.apikey + '&logs=1&responseTimes=1&responseTimesAverage=180&customUptimeRatio=7-30-45&format=json',
 			method: 'get'
 		}).send();
 	},
+
+	onConfigLoadedHandler: function(oConfig)
+	{
+		this.oConfig = oConfig;
+		this.loadDictionary(this.oConfig.lang.en);
+	},
+
+	onDictionaryLoadedHandler: function(oDictionary)
+	{
+		this.oDic = oDictionary;
+
+		$$('[data-lang]').each(function(oElement)
+		{
+			oElement.set('html', this.oDic[oElement.get('data-lang').split('dic-').join('')]).erase('data-lang');
+		}.bind(this));
+
+		this.loadApiData();
+	},
+
 	onWebserviceResponseHandler: function (oResult) {
 		if (oResult.stat == 'ok') {
 			this.aMonitorData = oResult.monitors.monitor;
@@ -119,9 +169,8 @@ var StatusMonitor = new Class({
 		this.updateGlobalLog();
 		this.updateCountryFilter();
 
-		this.iLastUpdate = new Date();
-		$$('.time').set('text', this.iLastUpdate.getDay() + '.' + this.iLastUpdate.getMonth() + '.' + this.iLastUpdate.getFullYear() + ' ' + this.iLastUpdate.getHours() + ':' + this.iLastUpdate.getMinutes() + ':' + this.iLastUpdate.getSeconds());
-		this.loadApiData.delay(this.iDelay * 1000, this);
+		$$('.last-changed').set('text', this.oDic['last-changed'].split('%s').join((new Date()).toLocaleString()));
+		this.loadApiData.delay(this.oConfig.delay * 1000, this);
 	},
 	/**
 	 * [updateCountryFilter description]
@@ -191,14 +240,27 @@ var StatusMonitor = new Class({
 			sMonitorId = 'monitor-' + oMonitorData.friendlyname.split(' ').join('-'),
 			sContainerId = sGameId + '-watch',
 			aResponseTimeData = [];
+
 		if (document.id(sContainerId) === null) {
-			return;
+			new Element('section', {'class': 'monitor-page', 'id': sGameId + '-watch'}).adopt([
+				new Element('h2', {'text': this.oDic['nav-label-' + sGameId]}),
+				new Element('ul', {'class': 'monitors'})
+			]).inject($$('main')[0]);
 		}
+		if($$('nav li[data-tab=' + sGameId + ']').length === 0)
+		{
+			new Element('li', {'data-tab': sGameId}).adopt([
+				new Element('span', {'text': this.oDic['nav-label-' + sGameId]}),
+				new Element('span', {'class': 'amount ' + sGameId + '-amount'})
+			]).inject($$('nav ul')[0]);
+		}
+
 		if(typeof this.oCountries[sCountry] === 'undefined')
 		{
 			this.oCountries[sCountry] = 0;
 		}
 		this.oCountries[sCountry] += 1;
+
 		if (typeof this.oCounterData[sGameId] === 'undefined' || this.oCounterData[sGameId] === null) {
 			this.oCounterData[sGameId] = 0;
 		}
@@ -221,7 +283,7 @@ var StatusMonitor = new Class({
 				new Element('span', {'class': 'game-' + sGameId}),
 				new Element('div', {'class': 'uptimes'}).adopt([
 								new Element('h4', {
-						'text': 'Uptime of the last 7/30/45 days'
+						'text': this.oDic['monitor-uptime-header']
 					}),
 								new Element('span', {
 						'class': 'uptime uptime-7',
@@ -240,14 +302,14 @@ var StatusMonitor = new Class({
 					'class': 'response-time'
 				}).adopt([
 								new Element('h4', {
-						'text': 'Response time in msec'
+						'text': this.oDic['monitor-response-time-header']
 					}),
 								new Element('div', {
 						'class': 'ct-chart'
 					})
 							]),
 							new Element('h4', {
-					'text': 'Logs'
+					'text': this.oDic['monitor-logs-header']
 				}),
 							new Element('div', {
 					'class': 'loglist'
@@ -259,25 +321,25 @@ var StatusMonitor = new Class({
 		switch (oMonitorData.status) {
 		case '0':
 			document.id(sMonitorId).addClass('paused').removeClass('waiting').removeClass('up').removeClass('seems-down').removeClass('down');
-			document.id(sMonitorId).getElement('.status').set('text', 'paused').set('class', 'status paused');
+			document.id(sMonitorId).getElement('.status').set('text', this.oDic['monitor-status-paused']).set('class', 'status paused');
 			break;
 		case '1':
 			document.id(sMonitorId).addClass('waiting').removeClass('paused').removeClass('up').removeClass('seems-down').removeClass('down');
-			document.id(sMonitorId).getElement('.status').set('text', 'waiting').set('class', 'status waiting');
+			document.id(sMonitorId).getElement('.status').set('text', this.oDic['monitor-status-waiting']).set('class', 'status waiting');
 			break;
 		case '2':
 			document.id(sMonitorId).addClass('up').removeClass('waiting').removeClass('paused').removeClass('seems-down').removeClass('down');
-			document.id(sMonitorId).getElement('.status').set('text', 'up').set('class', 'status up');
+			document.id(sMonitorId).getElement('.status').set('text', this.oDic['monitor-status-up']).set('class', 'status up');
 			break;
 		case '8':
 			this.oCounterData[sGameId] += 1;
 			document.id(sMonitorId).addClass('seems-down').removeClass('waiting').removeClass('up').removeClass('paused').removeClass('down');
-			document.id(sMonitorId).getElement('.status').set('text', 'down').set('class', 'status seems-down');
+			document.id(sMonitorId).getElement('.status').set('text', this.oDic['monitor-status-down']).set('class', 'status seems-down');
 			break;
 		case '9':
 			this.oCounterData[sGameId] += 1;
 			document.id(sMonitorId).addClass('paused').removeClass('waiting').removeClass('up').removeClass('seems-down').removeClass('paused');
-			document.id(sMonitorId).getElement('.status').set('text', 'down').set('class', 'status down');
+			document.id(sMonitorId).getElement('.status').set('text', this.oDic['monitor-status-down']).set('class', 'status down');
 			break;
 		}
 		oMonitorData.customuptimeratio.split('-').each(function (sValue, iIndex) {
