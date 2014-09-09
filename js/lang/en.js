@@ -22,7 +22,7 @@
 	"monitor-status-waiting": "waiting",
 	"monitor-status-paused": "paused",
 	"monitor-status-seems-down": "down",
-	"monitor-uptime-header": "Uptime of the last 7/30/45 days",
+	"monitor-uptime-header": "Uptime of the last 1/3/7/14/21 days",
 	"monitor-response-time-header": "Response time in msec",
 	"monitor-logs-header": "Logs"
 }

@@ -4,5 +4,6 @@
 	"lang": {
 		"de": "js/lang/de.js",
 		"en": "js/lang/en.js"
-	}
+	},
+	"response-time-intervals": "1-3-7-14-21"
 }
