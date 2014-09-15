@@ -3,6 +3,7 @@ var StatusMonitor = new Class({
 	oCounterData: {},
 	aGlobalLog: [],
 	oCountries: {},
+	oGlobalLog: {},
 	oLogTypes: {
 		'1': 'down',
 		'2': 'up',
@@ -45,14 +46,19 @@ var StatusMonitor = new Class({
 		}).send();
 	},
 	loadApiData: function () {
-		this.oRequest = new Request.JSONP({
-			url: 'http://api.uptimerobot.com/getMonitors?apiKey=' + this.oConfig.apikey + '&logs=1&responseTimes=1&responseTimesAverage=180&customUptimeRatio=' + this.oConfig['response-time-intervals'] + '&format=json',
-			method: 'get'
-		}).send();
+		var i = 0;
+		
+		for(i = this.oConfig.apikeys.length; i--;)
+		{
+			new Request.JSONP({
+				url: 'http://api.uptimerobot.com/getMonitors?apiKey=' + this.oConfig.apikeys[i] + '&logs=1&responseTimes=1&responseTimesAverage=180&customUptimeRatio=' + this.oConfig['response-time-intervals'] + '&format=json',
+				method: 'get'
+			}).send();
+		}
 	},
 	onConfigLoadedHandler: function (oConfig) {
 		this.oConfig = oConfig;
-		this.loadDictionary(this.oConfig.lang.en);
+		this.loadDictionary(this.oConfig.lang.de);
 	},
 	onDictionaryLoadedHandler: function (oDictionary) {
 		this.oDic = oDictionary;
@@ -123,7 +129,6 @@ var StatusMonitor = new Class({
 			iMax,
 			sId;
 		this.oCounterData = {};
-		this.aGlobalLog = [];
 		iMax = this.aMonitorData.length;
 		for (i = 0; i < iMax; i++) {
 			this.updateMonitor(this.aMonitorData[i]);
@@ -138,7 +143,7 @@ var StatusMonitor = new Class({
 		}
 		this.updateGlobalLog();
 		this.updateCountryFilter();
-		$$('.last-changed').set('text', this.oDic['last-changed'].split('%s').join((new Date()).toLocaleString()));
+		$$('.last-changed').set('text', this.oDic['last-changed'].split('%s').join((new Date()).toLocaleString(this.oDic.locale)));
 		this.loadApiData.delay(this.oConfig.delay * 1000, this);
 	},
 	/**
@@ -167,7 +172,10 @@ var StatusMonitor = new Class({
 		var aElements = [],
 			sId,
 			oLastLogs = {};
+
+		this.aGlobalLog = Object.values(this.oGlobalLog);
 		this.aGlobalLog.sort(this.sortLogArray);
+
 		iMax = this.aGlobalLog.length;
 		for (i = 0; i < iMax; i++) {
 			if (typeof oLastLogs[this.aGlobalLog[i].monitor] !== 'undefined' && typeof oLastLogs[this.aGlobalLog[i].monitor].down !== 'undefined') {
@@ -177,7 +185,7 @@ var StatusMonitor = new Class({
 				oLastLogs[this.aGlobalLog[i].monitor] = {};
 			}
 			if (typeof oLastLogs[this.aGlobalLog[i].monitor][this.aGlobalLog[i].type] === 'undefined') {
-				oLastLogs[this.aGlobalLog[i].monitor][this.aGlobalLog[i].type] = this.aGlobalLog[i].time.toLocaleString();
+				oLastLogs[this.aGlobalLog[i].monitor][this.aGlobalLog[i].type] = this.aGlobalLog[i].time.toLocaleString(this.oDic.locale);
 			}
 		}
 		for (sId in oLastLogs) {
@@ -195,6 +203,7 @@ var StatusMonitor = new Class({
 				})
 				]));
 		}
+
 		document.id('dashboard-watch').getElement('.logs tbody').empty().adopt(aElements);
 		oLastLogs = null;
 	},
@@ -329,17 +338,18 @@ var StatusMonitor = new Class({
 		});
 		aLogs = [];
 		oMonitorData.log.each(function (oLogData) {
-			this.aGlobalLog.push({
+			this.oGlobalLog[sGameId + '-' + sCountry + '-' + 0+(new Date(oLogData.datetime))] = 
+			{
 				'time': new Date(oLogData.datetime),
 				'monitor': oMonitorData.friendlyname,
 				'type': this.oLogTypes[oLogData.type]
-			});
+			};
 			aLogs.push(new Element('li', {
 				'class': this.oLogTypes[oLogData.type]
 			}).adopt([
 					new Element('span', {
 					'class': 'date',
-					'text': new Date(oLogData.datetime).toLocaleString()
+					'text': new Date(oLogData.datetime).toLocaleString(this.oDic.locale)
 				}),
 					new Element('span', {
 					'class': 'desc',
@@ -355,9 +365,8 @@ var StatusMonitor = new Class({
 				'series': [[]]
 			};
 			for (i = iMax; i--;) {
-				sId = oMonitorData.responsetime[i].datetime.split(' ')[1];
-				sId = sId.split(':')[0] + ':' + sId.split(':')[1];
-				oData.labels.push(sId);
+				sId = new Date(oMonitorData.responsetime[i].datetime);
+				oData.labels.push(sId.getHours() + ':' + sId.getMinutes());
 				oData.series[0].push(Number(oMonitorData.responsetime[i].value));
 			}
 			try {

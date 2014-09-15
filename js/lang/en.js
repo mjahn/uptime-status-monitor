@@ -1,6 +1,6 @@
 {
-	"title": "Playzo Spiele-Status",
-	"last-changed": "Letzte Aktualisierung %s",
+	"title": "Playzo Games Statuspage",
+	"last-changed": "Last updated %s",
 	"filter-label": "Filter by country",
 	"filter-option-reset": "Show all",
 	"dashboard-header": "Dashboard",
@@ -24,5 +24,6 @@
 	"monitor-status-seems-down": "down",
 	"monitor-uptime-header": "Uptime of the last 1/3/7/14/21 days",
 	"monitor-response-time-header": "Response time in msec",
-	"monitor-logs-header": "Logs"
+	"monitor-logs-header": "Logs",
+	"locale": "en-US"
 }
