@@ -58,7 +58,7 @@ var StatusMonitor = new Class({
 	},
 	onConfigLoadedHandler: function (oConfig) {
 		this.oConfig = oConfig;
-		this.loadDictionary(this.oConfig.lang.de);
+		this.loadDictionary('js/lang/' + this.oConfig.lang + '.js');
 	},
 	onDictionaryLoadedHandler: function (oDictionary) {
 		this.oDic = oDictionary;
@@ -80,6 +80,7 @@ var StatusMonitor = new Class({
 		}
 		if (oListItem.get('data-tab') !== '') {
 			if (oListItem.get('data-tab') !== 'all') {
+				simpleStorage.set('tab', oListItem.get('data-tab'));
 				$$('nav ul li').removeClass('active');
 				oListItem.addClass('active');
 				$$('section.monitor-page').removeClass('active');
@@ -95,12 +96,20 @@ var StatusMonitor = new Class({
 			}
 		}
 	},
-	showTab: function (iTabId) {
+	showTab: function (mTabId) {
 		$$('nav ul li').removeClass('active');
-		$$('nav ul li')[iTabId].addClass('active');
 		$$('section.monitor-page').removeClass('active');
-		$$('section#' + $$('nav ul li')[iTabId].get('data-tab') + '-watch').addClass('active');
 		$$('main').removeClass('all');
+
+		if(typeof mTabId === 'string')
+		{
+			$$('nav ul li[data-tab="'+mTabId+'"]').addClass('active');
+			$$('section#' + mTabId + '-watch').addClass('active');
+			return;
+		}
+
+		$$('nav ul li')[mTabId].addClass('active');
+		$$('section#' + $$('nav ul li')[mTabId].get('data-tab') + '-watch').addClass('active');
 	},
 	onSelectChangeHandler: function (oEvent) {
 		var i,
@@ -110,7 +119,14 @@ var StatusMonitor = new Class({
 				if (aOptions[i].value === 'reset') {
 					$$('.monitor').removeClass('hidden');
 					$$('[data-tab="all"]').addClass('hidden');
-					this.showTab(0);
+					if(simpleStorage.get('tab'))
+					{
+						this.showTab(simpleStorage.get('tab'));
+					}
+					else
+					{						
+						this.showTab(0);
+					}
 					break;
 				}
 				$$('[data-tab="all"]').removeClass('hidden');
