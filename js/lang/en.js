@@ -25,5 +25,6 @@
 	"monitor-uptime-header": "Uptime of the last 1/3/7/14/21 days",
 	"monitor-response-time-header": "Response time in msec",
 	"monitor-logs-header": "Logs",
-	"locale": "en-US"
+	"locale": "en-US",
+	"chart_empty": "No data available"
 }

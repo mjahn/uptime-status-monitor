@@ -25,5 +25,6 @@
 	"monitor-uptime-header": "Uptime der letzten 1/3/7/14/21 Tage",
 	"monitor-response-time-header": "Reaktionszeit in ms",
 	"monitor-logs-header": "Logs",
-	"locale": "de-DE"
+	"locale": "de-DE",
+	"chart_empty": "Noch keine Daten verfügbar"
 }

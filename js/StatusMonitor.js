@@ -10,6 +10,7 @@ var StatusMonitor = new Class({
 		'98': 'started',
 		'99': 'paused'
 	},
+	oUpdateTracker: {},
 	initialize: function () {
 		jsonUptimeRobotApi = this.onWebserviceResponseHandler.bind(this);
 		this.onNavClickReference = this.onNavClickHandler.bind(this);
@@ -144,6 +145,8 @@ var StatusMonitor = new Class({
 		var i,
 			iMax,
 			sId;
+
+		this.oTime = new Date();
 		this.oCounterData = {};
 		iMax = this.aMonitorData.length;
 		for (i = 0; i < iMax; i++) {
@@ -159,7 +162,7 @@ var StatusMonitor = new Class({
 		}
 		this.updateGlobalLog();
 		this.updateCountryFilter();
-		$$('.last-changed').set('text', this.oDic['last-changed'].split('%s').join((new Date()).toLocaleString(this.oDic.locale)));
+		$$('.last-changed').set('text', this.oDic['last-changed'].split('%s').join(this.oTime.toLocaleString(this.oDic.locale)));
 		this.loadApiData.delay(this.oConfig.delay * 1000, this);
 	},
 	/**
@@ -307,7 +310,7 @@ var StatusMonitor = new Class({
 						'text': this.oDic['monitor-response-time-header']
 					}),
 								new Element('div', {
-						'class': 'ct-chart'
+						'class': 'ct-chart', 'Text': this.oDic.chart_empty
 					})
 							]),
 							new Element('h4', {
@@ -344,56 +347,61 @@ var StatusMonitor = new Class({
 			document.id(sMonitorId).getElement('.status').set('text', this.oDic['monitor-status-down']).set('class', 'status down');
 			break;
 		}
-		oMonitorData.customuptimeratio.split('-').each(function (sValue, iIndex) {
-			while (typeof document.id(sMonitorId).getElements('.uptime')[iIndex] === 'undefined' || document.id(sMonitorId).getElements('.uptime')[iIndex] === null) {
-				new Element('span', {
-					'class': 'uptime'
-				}).inject(document.id(sMonitorId).getElement('.uptimes'));
-			}
-			document.id(sMonitorId).getElements('.uptime')[iIndex].set('text', sValue);
-		});
-		aLogs = [];
-		oMonitorData.log.each(function (oLogData) {
-			this.oGlobalLog[sGameId + '-' + sCountry + '-' + 0+(new Date(oLogData.datetime))] = 
-			{
-				'time': new Date(oLogData.datetime),
-				'monitor': oMonitorData.friendlyname,
-				'type': this.oLogTypes[oLogData.type]
-			};
-			aLogs.push(new Element('li', {
-				'class': this.oLogTypes[oLogData.type]
-			}).adopt([
+
+		if(typeof this.oUpdateTracker[sMonitorId] === 'undefined' || this.oUpdateTracker[sMonitorId] < this.oTime.getTime() - 1800000)
+		{
+			this.oUpdateTracker[sMonitorId] = this.oTime.getTime();
+			oMonitorData.customuptimeratio.split('-').each(function (sValue, iIndex) {
+				while (typeof document.id(sMonitorId).getElements('.uptime')[iIndex] === 'undefined' || document.id(sMonitorId).getElements('.uptime')[iIndex] === null) {
 					new Element('span', {
-					'class': 'date',
-					'text': new Date(oLogData.datetime).toLocaleString(this.oDic.locale)
-				}),
-					new Element('span', {
-					'class': 'desc',
-					'text': this.oLogTypes[oLogData.type]
-				})
-				]));
-		}.bind(this));
-		document.id(sMonitorId).getElement('.logs').empty().adopt(aLogs);
-		if (typeof oMonitorData.responsetime !== 'undefined' && oMonitorData.responsetime.length > 2) {
-			iMax = oMonitorData.responsetime.length;
-			oData = {
-				'labels': [],
-				'series': [[]]
-			};
-			for (i = iMax; i--;) {
-				sId = new Date(oMonitorData.responsetime[i].datetime);
-				oData.labels.push(sId.getHours() + ':' + sId.getMinutes());
-				oData.series[0].push(Number(oMonitorData.responsetime[i].value));
-			}
-			try {
-				Chartist.Line(document.id(sMonitorId).getElement('.ct-chart'), oData, {
-					'width': '400',
-					'height': '150',
-					'color': '#00ff00'
-				});
-			}
-			catch (oError) {
-				//console.error(oError);
+						'class': 'uptime'
+					}).inject(document.id(sMonitorId).getElement('.uptimes'));
+				}
+				document.id(sMonitorId).getElements('.uptime')[iIndex].set('text', sValue);
+			});
+			aLogs = [];
+			oMonitorData.log.each(function (oLogData) {
+				this.oGlobalLog[sGameId + '-' + sCountry + '-' + 0+(new Date(oLogData.datetime))] = 
+				{
+					'time': new Date(oLogData.datetime),
+					'monitor': oMonitorData.friendlyname,
+					'type': this.oLogTypes[oLogData.type]
+				};
+				aLogs.push(new Element('li', {
+					'class': this.oLogTypes[oLogData.type]
+				}).adopt([
+						new Element('span', {
+						'class': 'date',
+						'text': new Date(oLogData.datetime).toLocaleString(this.oDic.locale)
+					}),
+						new Element('span', {
+						'class': 'desc',
+						'text': this.oLogTypes[oLogData.type]
+					})
+					]));
+			}.bind(this));
+			document.id(sMonitorId).getElement('.logs').empty().adopt(aLogs);
+			if (typeof oMonitorData.responsetime !== 'undefined' && oMonitorData.responsetime.length > 2) {
+				iMax = oMonitorData.responsetime.length;
+				oData = {
+					'labels': [],
+					'series': [[]]
+				};
+				for (i = iMax; i--;) {
+					sId = new Date(oMonitorData.responsetime[i].datetime);
+					oData.labels.push(sId.getHours() + ':' + sId.getMinutes());
+					oData.series[0].push(Number(oMonitorData.responsetime[i].value));
+				}
+				try {
+					Chartist.Line(document.id(sMonitorId).getElement('.ct-chart').empty(), oData, {
+						'width': '400',
+						'height': '150',
+						'color': '#00ff00'
+					});
+				}
+				catch (oError) {
+					//console.error(oError);
+				}
 			}
 		}
 	}

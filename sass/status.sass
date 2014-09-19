@@ -173,7 +173,7 @@ section.monitor-page
 		overflow: auto
 		height: 5em
 		margin: 0 0 1em 0
-		background: rgba(#fff, 0.8)	
+		background: rgba(#fff, 0.5)	
 	.logs
 		list-style: none
 		margin: 0
@@ -192,11 +192,16 @@ section.monitor-page
 				color: gray
 		.date
 			margin-right: .5em
-	.ct-chart:empty
-		content: ' '
+	.ct-chart
 		display: block
-		width: 400px
+		text-align: center
 		height: 150px
+		line-height: 150px
+		background: rgba(#fff, 0.5)
+		.ct-label 
+			fill: black
+		.ct-grid
+			stroke: black 
 table.logs
 	border-collapse: collapse
 	border: 0
