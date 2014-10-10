@@ -1,3 +1,4 @@
+
 var StatusMonitor = new Class({
 	aMonitorData: [],
 	oCounterData: {},
@@ -310,8 +311,8 @@ var StatusMonitor = new Class({
 						'text': this.oDic['monitor-response-time-header']
 					}),
 								new Element('div', {
-						'class': 'ct-chart', 'Text': this.oDic.chart_empty
-					})
+						'class': 'ct-chart'}).adopt(new Element('span', {'class': 'empty-text', 'text': this.oDic.chart_empty
+					}))
 							]),
 							new Element('h4', {
 					'text': this.oDic['monitor-logs-header']
@@ -393,14 +394,15 @@ var StatusMonitor = new Class({
 					oData.series[0].push(Number(oMonitorData.responsetime[i].value));
 				}
 				try {
-					Chartist.Line(document.id(sMonitorId).getElement('.ct-chart').empty(), oData, {
+					document.id(sMonitorId).getElement('.ct-chart .empty-text').destroy();
+					Chartist.Line(document.id(sMonitorId).getElement('.ct-chart'), oData, {
 						'width': '400',
 						'height': '150',
 						'color': '#00ff00'
 					});
 				}
 				catch (oError) {
-					//console.error(oError);
+					console.error(oError);
 				}
 			}
 		}
